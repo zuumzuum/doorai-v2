@@ -73,11 +73,11 @@ export default function LineSettingsPage() {
 
     const result = await saveLineSettings(settings);
     
-    if (result.success) {
+    if (result.success && result.data) {
       setSuccess("LINE設定を保存しました");
       setIsConnected(result.data.isActive);
     } else {
-      setError(result.error);
+      setError(result.error ?? null);
     }
     
     setIsLoading(false);
@@ -93,7 +93,7 @@ export default function LineSettingsPage() {
     if (result.success) {
       setSuccess("LINE Botとの接続に成功しました");
     } else {
-      setError(result.error);
+      setError(result.error ?? null);
     }
     
     setIsTesting(false);
