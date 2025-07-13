@@ -82,7 +82,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   }
 
   try {
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId) as Stripe.Subscription;
     const priceId = subscription.items.data[0]?.price.id;
     const planType = planFromPriceId(priceId);
     const tokenLimit = tokenLimitFromPlan(planType);
@@ -95,7 +95,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       stripe_price_id: priceId,
       status: subscription.status,
       plan_type: planType,
-      current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+      current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
       updated_at: new Date().toISOString()
     }, { onConflict: 'tenant_id' });
 
@@ -120,7 +120,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       stripe_price_id: priceId,
       status: subscription.status,
       plan_type: planType,
-      current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+      current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
       updated_at: new Date().toISOString()
     }).eq('stripe_subscription_id', subscription.id);
 
@@ -131,7 +131,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 }
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
-  const subscriptionId = invoice.subscription as string;
+  const subscriptionId = (invoice as any).subscription as string;
   if (!subscriptionId) return;
 
   try {
